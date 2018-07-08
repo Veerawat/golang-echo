@@ -15,6 +15,16 @@ type Cat struct {
 	Type string `json:"type"`
 }
 
+type Dog struct {
+	Name string `json:"name"`
+	Type string `json:"type"`
+}
+
+type Hamster struct {
+	Name string `json:"name"`
+	Type string `json:"type"`
+}
+
 func index(c echo.Context) error {
 	return c.String(http.StatusOK, "Hello, World!")
 }
@@ -62,11 +72,41 @@ func addCat(c echo.Context) error {
 	return c.String(http.StatusOK, "we got your cat!")
 }
 
+func addDog(c echo.Context) error {
+	dog := Dog{}
+
+	defer c.Request().Body.Close()
+
+	err := json.NewDecoder(c.Request().Body).Decode(&dog)
+	if err != nil {
+		log.Printf("Fail processing addDog request: %s", err)
+		return echo.NewHTTPError(http.StatusInternalServerError)
+	}
+
+	log.Printf("this is your dog: %#v", dog)
+	return c.String(http.StatusOK, "we got your dog!")
+}
+
+func addHamster(c echo.Context) error {
+	hamster := Hamster{}
+
+	err := c.Bind(&hamster)
+	if err != nil {
+		log.Printf("Fail processing addHamster request: %s", err)
+		return echo.NewHTTPError(http.StatusInternalServerError)
+	}
+
+	log.Printf("this is your hamster: %#v", hamster)
+	return c.String(http.StatusOK, "we got your hamster!")
+}
+
 func main() {
 	e := echo.New()
 	e.GET("/", index)
 	e.GET("/cat/:data", getCats)
 
 	e.POST("/cats", addCat)
+	e.POST("/dogs", addDog)
+	e.POST("/hamster", addHamster)
 	e.Logger.Fatal(e.Start(":8000"))
 }
