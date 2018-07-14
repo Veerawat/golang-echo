@@ -29,6 +29,7 @@ func index(c echo.Context) error {
 	return c.String(http.StatusOK, "Hello, World!")
 }
 
+// http get send param url
 func getCats(c echo.Context) error {
 	catName := c.QueryParam("name")
 	catType := c.QueryParam("type")
@@ -69,7 +70,7 @@ func addCat(c echo.Context) error {
 	}
 
 	log.Printf("this is your cat: %#v", cat)
-	return c.String(http.StatusOK, "we got your cat!")
+	return c.JSON(http.StatusOK, cat)
 }
 
 func addDog(c echo.Context) error {
@@ -109,4 +110,5 @@ func main() {
 	e.POST("/dogs", addDog)
 	e.POST("/hamster", addHamster)
 	e.Logger.Fatal(e.Start(":8000"))
+
 }
