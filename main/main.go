@@ -8,6 +8,7 @@ import (
 	"net/http"
 
 	"github.com/labstack/echo"
+	"github.com/labstack/echo/middleware"
 )
 
 type Cat struct {
@@ -101,14 +102,31 @@ func addHamster(c echo.Context) error {
 	return c.String(http.StatusOK, "we got your hamster!")
 }
 
+func mainAdmin(c echo.Context) error {
+	return c.String(http.StatusOK, "Hello Admin")
+}
+
 func main() {
 	e := echo.New()
+	e.Use(middleware.Logger())
 	e.GET("/", index)
 	e.GET("/cat/:data", getCats)
 
 	e.POST("/cats", addCat)
 	e.POST("/dogs", addDog)
 	e.POST("/hamster", addHamster)
+
+	g := e.Group("/admin")
+	g.GET("/main", mainAdmin)
+	g.Use(middleware.Logger())
+
+	e.Use(middleware.BasicAuth(func(username, password string, c echo.Context) (bool, error) {
+		if username == "veerawat" && password == "12345" {
+			return true, nil
+		}
+		return false, nil
+	}))
+
 	e.Logger.Fatal(e.Start(":8000"))
 
 }
